@@ -76,4 +76,53 @@ CALL generate_payments(100000000);
 COMMIT;
 ```
 
+If your computer not enough RAM for script. You can run
+
+```sql
+
+-- Toi uu bo nho
+DO $$
+BEGIN
+    FOR i IN 1..10 LOOP
+        CALL generate_payments(1000000); -- 1 triệu mỗi lần
+        COMMIT;
+    END LOOP;
+END $$;
+```
+
+### Practice Optimize query database
+
+```sql
+-- Optimize
+-- Tạo chỉ mục để tối ưu truy vấn
+CREATE INDEX idx_payments_customer_id ON payments (customer_id);
+CREATE INDEX idx_payments_transaction_date ON payments (transaction_date);
+CREATE INDEX idx_payments_status ON payments (status);
+
+-- phân vùng bảng theo transaction_date
+CREATE TABLE payments_2024 PARTITION OF payments
+    FOR VALUES FROM ('2024-01-01') TO ('2025-01-01');
+CREATE TABLE payments_2025 PARTITION OF payments
+    FOR VALUES FROM ('2025-01-01') TO ('2026-01-01');
+
+ALTER TABLE payments ADD PRIMARY KEY (order_id, transaction_date);
+
+--   Song song hóa (Parallel Execution)
+SET max_parallel_workers_per_gather = 4;
+
+
+-- Test query
+SELECT customer_id, SUM(amount_paid)
+FROM payments
+GROUP BY customer_id
+ORDER BY SUM(amount_paid) DESC
+LIMIT 10;
+
+SELECT COUNT(*)
+FROM payments
+WHERE status = 'failed'
+AND transaction_date > NOW() - INTERVAL '30 days';
+
+```
+
 ## END
