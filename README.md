@@ -163,3 +163,5 @@ AND transaction_date > NOW() - INTERVAL '30 days';
 Time Execution:
 
 ## END
+
+I hope this post is helpful to you.
