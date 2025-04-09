@@ -1,5 +1,9 @@
 # generate-sql-sample
 
+## Introduction
+
+Have you ever found yourself in a situation where you've just read a article about optimizing SQL queries and wanted to try out the methods but you didn't have a large database to practice with? As developer, we often only work in development environments where the data is limited to a few hundred or thousand records. This mean we rarely get the chance to practice with millions of records. In this post, I'll share how to generate a dummy dataset with hundreds of millions of records so you can practice and test your optimization techniques.
+
 ## Generate dummy data postgresql
 
 ### Run docker create database Postgresql for test
@@ -62,7 +66,7 @@ BEGIN
 EXCEPTION
     WHEN OTHERS THEN
         RAISE NOTICE 'Error: %', SQLERRM;
-        ROLLBACK; -- Dòng này gây lỗi [2D000]
+        ROLLBACK;
         RAISE;
 END;
 $$;
@@ -90,7 +94,32 @@ BEGIN
 END $$;
 ```
 
-### Practice Optimize query database
+## Test
+
+```text
+
+SELECT COUNT(*)
+FROM payments
+WHERE status = 'failed'
+AND transaction_date > NOW() - INTERVAL '30 days';
+
+```
+
+Time Execution: 6 second
+
+## How to reduce time query
+
+### How to resolve
+
+Solution:
+
+- Create index to optimize query
+
+- create partition
+
+- parallel execution
+
+### Sample
 
 ```sql
 -- Optimize
@@ -111,6 +140,13 @@ ALTER TABLE payments ADD PRIMARY KEY (order_id, transaction_date);
 SET max_parallel_workers_per_gather = 4;
 
 
+
+```
+
+## Result
+
+```sql
+
 -- Test query
 SELECT customer_id, SUM(amount_paid)
 FROM payments
@@ -122,7 +158,8 @@ SELECT COUNT(*)
 FROM payments
 WHERE status = 'failed'
 AND transaction_date > NOW() - INTERVAL '30 days';
-
 ```
+
+Time Execution:
 
 ## END
