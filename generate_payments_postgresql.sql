@@ -46,9 +46,12 @@ EXCEPTION
 END;
 $$;
 
+BEGIN;
+CALL generate_payments(100000000);
+COMMIT;
+
 
 -- Optimize 
-
 -- Tạo chỉ mục để tối ưu truy vấn
 CREATE INDEX idx_payments_customer_id ON payments (customer_id);
 CREATE INDEX idx_payments_transaction_date ON payments (transaction_date);
